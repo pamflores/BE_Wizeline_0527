@@ -3,11 +3,11 @@
 
 ### PROJECT STRUCTURE
 ````
-  ├── TodoListApp
-  │      ├── collections
-  │         └── Backend-workshop.postman_collection.json
-  └──    ├── envVariables
-            └── TodoList.postman_environment.json
+  ├── Square_Payments
+  │      ├── collection
+  │         └── Square_Payments.postman_collection.json
+  └──    ├── variables
+            └── Square_Sandbox.postman_environment.json
 ````
 
 #### **INSTALLATION**
