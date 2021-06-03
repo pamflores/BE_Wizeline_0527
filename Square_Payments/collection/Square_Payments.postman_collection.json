@@ -1,0 +1,1268 @@
+{
+	"info": {
+		"_postman_id": "b14e07aa-1067-414b-9ebc-d3dc7e81639d",
+		"name": "Square_Payments",
+		"description": "Square Payments API calls for Wizeline's Fullstack QA Certification - BackEnd",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Payments",
+			"item": [
+				{
+					"name": "Create Payment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"var jsonReq = JSON.parse(request.data);",
+									"",
+									" if (responseCode.code === 200){",
+									"    pm.environment.set(\"payment_id\", jsonData.payment.id);",
+									"    pm.environment.set(\"version_token\", jsonData.payment.version_token);",
+									"    pm.environment.set(\"payment_amount\", jsonData.payment.amount);",
+									" }",
+									"var errorMsgCash = \"Expected identifier (line 3, character 26)\"",
+									"",
+									"// ****** Tests ******",
+									"",
+									"//Validate schema is correctly retrieved",
+									"pm.test(\"Validate schema\", () => {",
+									"    if (responseCode.code === 200){",
+									"        pm.response.to.have.jsonSchema(pm.environment.get(\"paymentSchema\"));",
+									"    }",
+									"});",
+									"",
+									"",
+									"//Validate that the amount and currency shown in the response is the same we sent in the request",
+									"pm.test(\"Amount and currency shown in the response is the same we sent\", function(){",
+									"    if (responseCode.code === 200){",
+									"        var amount= jsonReq.amount_money.amount;",
+									"        var currency = jsonReq.amount_money.currency;",
+									"        pm.expect(jsonData.payment.approved_money.amount).to.eql(amount);",
+									"        pm.expect(jsonData.payment.approved_money.currency).to.eql(currency);",
+									"    }",
+									"",
+									"})",
+									"",
+									"//Having source_id = CASH and accept_partial_authoritzation = true, validate the error message shown, the text should match with the one described in the documentation",
+									"pm.test(\"Having source_id = CASH and accept_partial_authoritzation = true, error message matches the documentation\",function(){",
+									"    if((jsonReq.source_id)==\"CASH\" && (jsonReq.accept_partial_authoritzation)==true){",
+									"        pm.expect(jsonData.errors.detail).to.eql(errorMsgCash)",
+									"    }",
+									"})",
+									"",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var idempotency = pm.environment.get(\"ID_KEY\");",
+									"pm.environment.set(\"ID_KEY\", idempotency+1)",
+									"console.log(pm.environment.get(\"ID_KEY\"))",
+									"const schema=",
+									"    {",
+									"    \"type\": \"object\",",
+									"    \"default\": {},",
+									"    \"required\": [",
+									"        \"payment\"",
+									"    ],",
+									"    \"properties\": {",
+									"        \"payment\": {",
+									"            \"$id\": \"#/properties/payment\",",
+									"            \"type\": \"object\",",
+									"            \"title\": \"The payment schema\",",
+									"            \"description\": \"An explanation about the purpose of this instance.\",",
+									"            \"default\": {},",
+									"            \"required\": [",
+									"                \"id\",",
+									"                \"created_at\",",
+									"                \"updated_at\",",
+									"                \"amount_money\",",
+									"                \"status\",",
+									"                \"delay_duration\",",
+									"                \"source_type\",",
+									"                \"card_details\",",
+									"                \"location_id\",",
+									"                \"order_id\",",
+									"                \"risk_evaluation\",",
+									"                \"total_money\",",
+									"                \"approved_money\",",
+									"                \"capabilities\",",
+									"                \"receipt_number\",",
+									"                \"delay_action\",",
+									"                \"delayed_until\",",
+									"                \"version_token\"",
+									"            ],",
+									"            \"properties\": {",
+									"                \"id\": {",
+									"                    \"$id\": \"#/properties/payment/properties/id\",",
+									"                    \"type\": \"string\",",
+									"                    \"title\": \"The id schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": \"\"",
+									"                },",
+									"                \"created_at\": {",
+									"                    \"$id\": \"#/properties/payment/properties/created_at\",",
+									"                    \"type\": \"string\",",
+									"                    \"title\": \"The created_at schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": \"\"",
+									"                },",
+									"                \"updated_at\": {",
+									"                    \"$id\": \"#/properties/payment/properties/updated_at\",",
+									"                    \"type\": \"string\",",
+									"                    \"title\": \"The updated_at schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": \"\"",
+									"                },",
+									"                \"amount_money\": {",
+									"                    \"$id\": \"#/properties/payment/properties/amount_money\",",
+									"                    \"type\": \"object\",",
+									"                    \"title\": \"The amount_money schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": {},",
+									"                    \"required\": [",
+									"                        \"amount\",",
+									"                        \"currency\"",
+									"                    ],",
+									"                    \"properties\": {",
+									"                        \"amount\": {",
+									"                            \"$id\": \"#/properties/payment/properties/amount_money/properties/amount\",",
+									"                            \"type\": \"integer\",",
+									"                            \"title\": \"The amount schema\",",
+									"                            \"description\": \"An explanation about the purpose of this instance.\",",
+									"                            \"default\": 0",
+									"                        },",
+									"                        \"currency\": {",
+									"                            \"$id\": \"#/properties/payment/properties/amount_money/properties/currency\",",
+									"                            \"type\": \"string\",",
+									"                            \"title\": \"The currency schema\",",
+									"                            \"description\": \"An explanation about the purpose of this instance.\",",
+									"                            \"default\": \"\"",
+									"                        }",
+									"                    },",
+									"                    \"additionalProperties\": true",
+									"                },",
+									"                \"status\": {",
+									"                    \"$id\": \"#/properties/payment/properties/status\",",
+									"                    \"type\": \"string\",",
+									"                    \"title\": \"The status schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": \"\"",
+									"                },",
+									"                \"delay_duration\": {",
+									"                    \"$id\": \"#/properties/payment/properties/delay_duration\",",
+									"                    \"type\": \"string\",",
+									"                    \"title\": \"The delay_duration schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": \"\"",
+									"                },",
+									"                \"source_type\": {",
+									"                    \"$id\": \"#/properties/payment/properties/source_type\",",
+									"                    \"type\": \"string\",",
+									"                    \"title\": \"The source_type schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": \"\"",
+									"                },",
+									"                \"card_details\": {",
+									"                    \"$id\": \"#/properties/payment/properties/card_details\",",
+									"                    \"type\": \"object\",",
+									"                    \"title\": \"The card_details schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": {},",
+									"                    \"required\": [",
+									"                        \"status\",",
+									"                        \"card\",",
+									"                        \"entry_method\",",
+									"                        \"cvv_status\",",
+									"                        \"avs_status\",",
+									"                        \"statement_description\",",
+									"                        \"card_payment_timeline\"",
+									"                    ],",
+									"                    \"properties\": {",
+									"                        \"status\": {",
+									"                            \"$id\": \"#/properties/payment/properties/card_details/properties/status\",",
+									"                            \"type\": \"string\",",
+									"                            \"title\": \"The status schema\",",
+									"                            \"description\": \"An explanation about the purpose of this instance.\",",
+									"                            \"default\": \"\"",
+									"                        },",
+									"                        \"card\": {",
+									"                            \"$id\": \"#/properties/payment/properties/card_details/properties/card\",",
+									"                            \"type\": \"object\",",
+									"                            \"title\": \"The card schema\",",
+									"                            \"description\": \"An explanation about the purpose of this instance.\",",
+									"                            \"default\": {},",
+									"                            \"required\": [",
+									"                                \"card_brand\",",
+									"                                \"last_4\",",
+									"                                \"exp_month\",",
+									"                                \"exp_year\",",
+									"                                \"fingerprint\",",
+									"                                \"card_type\",",
+									"                                \"prepaid_type\",",
+									"                                \"bin\"",
+									"                            ],",
+									"                            \"properties\": {",
+									"                                \"card_brand\": {",
+									"                                    \"$id\": \"#/properties/payment/properties/card_details/properties/card/properties/card_brand\",",
+									"                                    \"type\": \"string\",",
+									"                                    \"title\": \"The card_brand schema\",",
+									"                                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                                    \"default\": \"\"",
+									"                                },",
+									"                                \"last_4\": {",
+									"                                    \"$id\": \"#/properties/payment/properties/card_details/properties/card/properties/last_4\",",
+									"                                    \"type\": \"string\",",
+									"                                    \"title\": \"The last_4 schema\",",
+									"                                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                                    \"default\": \"\"",
+									"                                },",
+									"                                \"exp_month\": {",
+									"                                    \"$id\": \"#/properties/payment/properties/card_details/properties/card/properties/exp_month\",",
+									"                                    \"type\": \"integer\",",
+									"                                    \"title\": \"The exp_month schema\",",
+									"                                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                                    \"default\": 0",
+									"                                },",
+									"                                \"exp_year\": {",
+									"                                    \"$id\": \"#/properties/payment/properties/card_details/properties/card/properties/exp_year\",",
+									"                                    \"type\": \"integer\",",
+									"                                    \"title\": \"The exp_year schema\",",
+									"                                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                                    \"default\": 0",
+									"                                },",
+									"                                \"fingerprint\": {",
+									"                                    \"$id\": \"#/properties/payment/properties/card_details/properties/card/properties/fingerprint\",",
+									"                                    \"type\": \"string\",",
+									"                                    \"title\": \"The fingerprint schema\",",
+									"                                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                                    \"default\": \"\"",
+									"                                },",
+									"                                \"card_type\": {",
+									"                                    \"$id\": \"#/properties/payment/properties/card_details/properties/card/properties/card_type\",",
+									"                                    \"type\": \"string\",",
+									"                                    \"title\": \"The card_type schema\",",
+									"                                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                                    \"default\": \"\"",
+									"                                },",
+									"                                \"prepaid_type\": {",
+									"                                    \"$id\": \"#/properties/payment/properties/card_details/properties/card/properties/prepaid_type\",",
+									"                                    \"type\": \"string\",",
+									"                                    \"title\": \"The prepaid_type schema\",",
+									"                                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                                    \"default\": \"\"",
+									"                                },",
+									"                                \"bin\": {",
+									"                                    \"$id\": \"#/properties/payment/properties/card_details/properties/card/properties/bin\",",
+									"                                    \"type\": \"string\",",
+									"                                    \"title\": \"The bin schema\",",
+									"                                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                                    \"default\": \"\"",
+									"                                }",
+									"                            },",
+									"                            \"additionalProperties\": true",
+									"                        },",
+									"                        \"entry_method\": {",
+									"                            \"$id\": \"#/properties/payment/properties/card_details/properties/entry_method\",",
+									"                            \"type\": \"string\",",
+									"                            \"title\": \"The entry_method schema\",",
+									"                            \"description\": \"An explanation about the purpose of this instance.\",",
+									"                            \"default\": \"\"",
+									"                        },",
+									"                        \"cvv_status\": {",
+									"                            \"$id\": \"#/properties/payment/properties/card_details/properties/cvv_status\",",
+									"                            \"type\": \"string\",",
+									"                            \"title\": \"The cvv_status schema\",",
+									"                            \"description\": \"An explanation about the purpose of this instance.\",",
+									"                            \"default\": \"\"",
+									"                        },",
+									"                        \"avs_status\": {",
+									"                            \"$id\": \"#/properties/payment/properties/card_details/properties/avs_status\",",
+									"                            \"type\": \"string\",",
+									"                            \"title\": \"The avs_status schema\",",
+									"                            \"description\": \"An explanation about the purpose of this instance.\",",
+									"                            \"default\": \"\"",
+									"                        },",
+									"                        \"statement_description\": {",
+									"                            \"$id\": \"#/properties/payment/properties/card_details/properties/statement_description\",",
+									"                            \"type\": \"string\",",
+									"                            \"title\": \"The statement_description schema\",",
+									"                            \"description\": \"An explanation about the purpose of this instance.\",",
+									"                            \"default\": \"\"",
+									"                        },",
+									"                        \"card_payment_timeline\": {",
+									"                            \"$id\": \"#/properties/payment/properties/card_details/properties/card_payment_timeline\",",
+									"                            \"type\": \"object\",",
+									"                            \"title\": \"The card_payment_timeline schema\",",
+									"                            \"description\": \"An explanation about the purpose of this instance.\",",
+									"                            \"default\": {},",
+									"                            \"required\": [",
+									"                                \"authorized_at\"",
+									"                            ],",
+									"                            \"properties\": {",
+									"                                \"authorized_at\": {",
+									"                                    \"$id\": \"#/properties/payment/properties/card_details/properties/card_payment_timeline/properties/authorized_at\",",
+									"                                    \"type\": \"string\",",
+									"                                    \"title\": \"The authorized_at schema\",",
+									"                                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                                    \"default\": \"\"",
+									"                                }",
+									"                            },",
+									"                            \"additionalProperties\": true",
+									"                        }",
+									"                    },",
+									"                    \"additionalProperties\": true",
+									"                },",
+									"                \"location_id\": {",
+									"                    \"$id\": \"#/properties/payment/properties/location_id\",",
+									"                    \"type\": \"string\",",
+									"                    \"title\": \"The location_id schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": \"\"",
+									"                },",
+									"                \"order_id\": {",
+									"                    \"$id\": \"#/properties/payment/properties/order_id\",",
+									"                    \"type\": \"string\",",
+									"                    \"title\": \"The order_id schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": \"\"",
+									"                },",
+									"                \"risk_evaluation\": {",
+									"                    \"$id\": \"#/properties/payment/properties/risk_evaluation\",",
+									"                    \"type\": \"object\",",
+									"                    \"title\": \"The risk_evaluation schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": {},",
+									"                    \"required\": [",
+									"                        \"created_at\",",
+									"                        \"risk_level\"",
+									"                    ],",
+									"                    \"properties\": {",
+									"                        \"created_at\": {",
+									"                            \"$id\": \"#/properties/payment/properties/risk_evaluation/properties/created_at\",",
+									"                            \"type\": \"string\",",
+									"                            \"title\": \"The created_at schema\",",
+									"                            \"description\": \"An explanation about the purpose of this instance.\",",
+									"                            \"default\": \"\"",
+									"                        },",
+									"                        \"risk_level\": {",
+									"                            \"$id\": \"#/properties/payment/properties/risk_evaluation/properties/risk_level\",",
+									"                            \"type\": \"string\",",
+									"                            \"title\": \"The risk_level schema\",",
+									"                            \"description\": \"An explanation about the purpose of this instance.\",",
+									"                            \"default\": \"\"",
+									"                        }",
+									"                    },",
+									"                    \"additionalProperties\": true",
+									"                },",
+									"                \"total_money\": {",
+									"                    \"$id\": \"#/properties/payment/properties/total_money\",",
+									"                    \"type\": \"object\",",
+									"                    \"title\": \"The total_money schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": {},",
+									"                    \"required\": [",
+									"                        \"amount\",",
+									"                        \"currency\"",
+									"                    ],",
+									"                    \"properties\": {",
+									"                        \"amount\": {",
+									"                            \"$id\": \"#/properties/payment/properties/total_money/properties/amount\",",
+									"                            \"type\": \"integer\",",
+									"                            \"title\": \"The amount schema\",",
+									"                            \"description\": \"An explanation about the purpose of this instance.\",",
+									"                            \"default\": 0",
+									"                        },",
+									"                        \"currency\": {",
+									"                            \"$id\": \"#/properties/payment/properties/total_money/properties/currency\",",
+									"                            \"type\": \"string\",",
+									"                            \"title\": \"The currency schema\",",
+									"                            \"description\": \"An explanation about the purpose of this instance.\",",
+									"                            \"default\": \"\"",
+									"                        }",
+									"                    },",
+									"                    \"additionalProperties\": true",
+									"                },",
+									"                \"approved_money\": {",
+									"                    \"$id\": \"#/properties/payment/properties/approved_money\",",
+									"                    \"type\": \"object\",",
+									"                    \"title\": \"The approved_money schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": {},",
+									"                    \"required\": [",
+									"                        \"amount\",",
+									"                        \"currency\"",
+									"                    ],",
+									"                    \"properties\": {",
+									"                        \"amount\": {",
+									"                            \"$id\": \"#/properties/payment/properties/approved_money/properties/amount\",",
+									"                            \"type\": \"integer\",",
+									"                            \"title\": \"The amount schema\",",
+									"                            \"description\": \"An explanation about the purpose of this instance.\",",
+									"                            \"default\": 0",
+									"                        },",
+									"                        \"currency\": {",
+									"                            \"$id\": \"#/properties/payment/properties/approved_money/properties/currency\",",
+									"                            \"type\": \"string\",",
+									"                            \"title\": \"The currency schema\",",
+									"                            \"description\": \"An explanation about the purpose of this instance.\",",
+									"                            \"default\": \"\"",
+									"                        }",
+									"                    },",
+									"                    \"additionalProperties\": true",
+									"                },",
+									"                \"capabilities\": {",
+									"                    \"$id\": \"#/properties/payment/properties/capabilities\",",
+									"                    \"type\": \"array\",",
+									"                    \"title\": \"The capabilities schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": [],",
+									"                    \"additionalItems\": true,",
+									"                    \"items\": {",
+									"                        \"$id\": \"#/properties/payment/properties/capabilities/items\",",
+									"                        \"anyOf\": [",
+									"                            {",
+									"                                \"$id\": \"#/properties/payment/properties/capabilities/items/anyOf/0\",",
+									"                                \"type\": \"string\",",
+									"                                \"title\": \"The first anyOf schema\",",
+									"                                \"description\": \"An explanation about the purpose of this instance.\",",
+									"                                \"default\": \"\"",
+									"                            }",
+									"                        ]",
+									"                    }",
+									"                },",
+									"                \"receipt_number\": {",
+									"                    \"$id\": \"#/properties/payment/properties/receipt_number\",",
+									"                    \"type\": \"string\",",
+									"                    \"title\": \"The receipt_number schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": \"\"",
+									"                },",
+									"                \"delay_action\": {",
+									"                    \"$id\": \"#/properties/payment/properties/delay_action\",",
+									"                    \"type\": \"string\",",
+									"                    \"title\": \"The delay_action schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": \"\"",
+									"                },",
+									"                \"delayed_until\": {",
+									"                    \"$id\": \"#/properties/payment/properties/delayed_until\",",
+									"                    \"type\": \"string\",",
+									"                    \"title\": \"The delayed_until schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": \"\"",
+									"                },",
+									"                \"version_token\": {",
+									"                    \"$id\": \"#/properties/payment/properties/version_token\",",
+									"                    \"type\": \"string\",",
+									"                    \"title\": \"The version_token schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": \"\"",
+									"                }",
+									"            },",
+									"            \"additionalProperties\": true",
+									"        }",
+									"    },",
+									"    \"additionalProperties\": true",
+									"}",
+									"pm.environment.set(\"paymentSchema\", schema)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Square-Version",
+								"value": "2021-05-13",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer EAAAEGYX8fRVhnqgkgYIy8Z92KRd_l5YoXp_e9RZLVx4nMhwAMRQoyFHmAfWMJna",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"idempotency_key\": \"{{ID_KEY}}\",\n    \"source_id\": \"cnon:card-nonce-ok\",\n    \"amount_money\": {\n      \"amount\": 11000,\n      \"currency\": \"USD\"\n    },\n    \"autocomplete\": false,\n    \"accept_partial_authoritzation\": true\n}\n\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{sandboxURL}}/v2/payments",
+							"host": [
+								"{{sandboxURL}}"
+							],
+							"path": [
+								"v2",
+								"payments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get One Payment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"",
+									"// ****** Tests ******",
+									"",
+									"// Validate schema is correctly received",
+									"pm.test(\"Validate schema\", () => {",
+									"    if (responseCode.code === 200){",
+									"        pm.response.to.have.jsonSchema(pm.environment.get(\"paymentSchema\"));",
+									"    }",
+									"});",
+									"",
+									"// Validate that the ID shown in the response matches with the one we sent in the URL",
+									"",
+									"pm.test(\"ID shown in the response matches with the one we sent\", function(){",
+									"      if (responseCode.code === 200){",
+									"        pm.expect(jsonData.payment.id).to.eql(pm.environment.get(\"payment_id\"));",
+									"      }",
+									"}) "
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Square-Version",
+								"value": "2021-05-13",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{sandboxURL}}/v2/payments/{{payment_id}}",
+							"host": [
+								"{{sandboxURL}}"
+							],
+							"path": [
+								"v2",
+								"payments",
+								"{{payment_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel One Payment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"let payment_id = pm.environment.get(\"payment_id\")",
+									"var errorMsgCancel404 = \"Could not find payment with id: \" + payment_id",
+									"",
+									"",
+									"// ****** Tests ******",
+									"",
+									"// Validate schema is correctly received",
+									"pm.test(\"Validate schema\", () => {",
+									"    if (responseCode.code === 200){",
+									"        pm.response.to.have.jsonSchema(pm.environment.get(\"paymentSchema\"));",
+									"    }",
+									"});",
+									"",
+									"",
+									"//Validate the error message shown when canceling a non-existing payment, the text should be: \"Could not find payment with payment id\" + the ID of te payment",
+									"pm.test(\"Expected error message\", function(){",
+									"    if (responseCode.code === 200){",
+									"        pm.expect(jsonData.errors[0].detail).to.eql(errorMsgCancel404);",
+									"    }",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Square-Version",
+								"value": "2021-05-13",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{sandboxURL}}/v2/payments/{{payment_id}}/cancel",
+							"host": [
+								"{{sandboxURL}}"
+							],
+							"path": [
+								"v2",
+								"payments",
+								"{{payment_id}}",
+								"cancel"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Complete One Payment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// ****** Tests ******",
+									"",
+									"// Validate schema is correctly received",
+									"pm.test(\"Validate schema\", () => {",
+									"    if (responseCode.code === 200){",
+									"        pm.response.to.have.jsonSchema(pm.environment.get(\"paymentSchema\"));",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Square-Version",
+								"value": "2021-05-13",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{sandboxURL}}/v2/payments/{{payment_id}}/complete",
+							"host": [
+								"{{sandboxURL}}"
+							],
+							"path": [
+								"v2",
+								"payments",
+								"{{payment_id}}",
+								"complete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Payments",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// ****** Tests ******",
+									"",
+									"// Validate schema is correctly received",
+									"pm.test(\"Validate schema\", () => {",
+									"    if (responseCode.code === 200){",
+									"        pm.response.to.have.jsonSchema(pm.environment.get(\"paymentSchema\"));",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Square-Version",
+								"value": "2021-05-13",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{sandboxURL}}/v2/payments",
+							"host": [
+								"{{sandboxURL}}"
+							],
+							"path": [
+								"v2",
+								"payments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update a Payment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"var jsonReq = JSON.parse(request.data);",
+									"",
+									"// ****** Tests ******",
+									"",
+									"// Validate schema is correctly received",
+									"pm.test(\"Validate schema\", () => {",
+									"    if (responseCode.code === 200){",
+									"        pm.response.to.have.jsonSchema(pm.environment.get(\"paymentSchema\"));",
+									"    }",
+									"});",
+									"",
+									"//Validate that the total amount of money shown is the sum of: Original amount of money + tip.",
+									"",
+									"pm.test(\"Total amount is the sum of Amount + Tip\",function(){",
+									"    if (responseCode.code === 200){",
+									"        var total = jsonReq.payment.amount_money.amount + jsonReq.payment.tip_money.amount;",
+									"        pm.expect(jsonData.payment.total_money.amount).to.eql(total);",
+									"",
+									"    }",
+									"})",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Square-Version",
+								"value": "2021-05-13",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"idempotency_key\": \"{{ID_KEY}}\",\n    \"payment\": {\n      \"amount_money\": {\n        \"amount\": 100,\n        \"currency\": \"USD\"\n      },\n      \"tip_money\": {\n        \"amount\": 1,\n        \"currency\": \"USD\"\n      },\n      \"version_token\": \"{{version_token}}\"\n    }\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{sandboxURL}}/v2/payments/{{payment_id}}",
+							"host": [
+								"{{sandboxURL}}"
+							],
+							"path": [
+								"v2",
+								"payments",
+								"{{payment_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Refunds",
+			"item": [
+				{
+					"name": "Refund One Payment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"var jsonReq = JSON.parse(request.data);",
+									"var errorCodeTooHigh = \"AMOUNT_TOO_HIGH\";",
+									"const moment = require('moment');",
+									"pm.environment.set(\"now\", moment.utc().toJSON());",
+									"",
+									"// ****** Tests ******",
+									"",
+									"// Validate schema is correctly received",
+									"pm.test(\"Validate schema\", () => {",
+									"    if (responseCode.code === 200){",
+									"        pm.response.to.have.jsonSchema(pm.environment.get(\"refundSchema\"));",
+									"    }",
+									"});",
+									"",
+									"",
+									"",
+									"",
+									"//Validate the error code shown in the response when trying to refund a higher amount of money for a payment. It should be \"AMOUNT_TOO_HIGH\"",
+									"pm.test(\"Error correctly displayed when amount too high\", function(){",
+									"    if (responseCode.code != 200){",
+									"        if(pm.environment.get(\"payment_amount\") < jsonReq.amount_money.amount){",
+									"            pm.expect(jsonData.errors[0].code).to.eql(errorCodeTooHigh)",
+									"        }",
+									"    }",
+									"})",
+									"",
+									"// Validate that the \"created_at\" date matches the date when the refund was made",
+									"",
+									"pm.test(\"Date is correct\", function(){",
+									"    if(responseCode.code === 200){",
+									"        var created=jsonData.refund.created_at",
+									"        var now = pm.environment.get(\"now\")",
+									"        pm.expect(now).to.eql(created)",
+									"    }",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const schema=",
+									"{",
+									"    \"$schema\": \"http://json-schema.org/draft-07/schema\",",
+									"    \"$id\": \"http://example.com/example.json\",",
+									"    \"type\": \"object\",",
+									"    \"title\": \"The root schema\",",
+									"    \"description\": \"The root schema comprises the entire JSON document.\",",
+									"    \"default\": {},",
+									"    \"required\": [",
+									"        \"refund\"",
+									"    ],",
+									"    \"properties\": {",
+									"        \"refund\": {",
+									"            \"$id\": \"#/properties/refund\",",
+									"            \"type\": \"object\",",
+									"            \"title\": \"The refund schema\",",
+									"            \"description\": \"An explanation about the purpose of this instance.\",",
+									"            \"default\": {},",
+									"            \"required\": [",
+									"                \"id\",",
+									"                \"status\",",
+									"                \"amount_money\",",
+									"                \"payment_id\",",
+									"                \"order_id\",",
+									"                \"created_at\",",
+									"                \"updated_at\",",
+									"                \"location_id\"",
+									"            ],",
+									"            \"properties\": {",
+									"                \"id\": {",
+									"                    \"$id\": \"#/properties/refund/properties/id\",",
+									"                    \"type\": \"string\",",
+									"                    \"title\": \"The id schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": \"\"",
+									"                },",
+									"                \"status\": {",
+									"                    \"$id\": \"#/properties/refund/properties/status\",",
+									"                    \"type\": \"string\",",
+									"                    \"title\": \"The status schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": \"\"",
+									"                },",
+									"                \"amount_money\": {",
+									"                    \"$id\": \"#/properties/refund/properties/amount_money\",",
+									"                    \"type\": \"object\",",
+									"                    \"title\": \"The amount_money schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": {},",
+									"                    \"required\": [",
+									"                        \"amount\",",
+									"                        \"currency\"",
+									"                    ],",
+									"                    \"properties\": {",
+									"                        \"amount\": {",
+									"                            \"$id\": \"#/properties/refund/properties/amount_money/properties/amount\",",
+									"                            \"type\": \"integer\",",
+									"                            \"title\": \"The amount schema\",",
+									"                            \"description\": \"An explanation about the purpose of this instance.\",",
+									"                            \"default\": 0",
+									"                        },",
+									"                        \"currency\": {",
+									"                            \"$id\": \"#/properties/refund/properties/amount_money/properties/currency\",",
+									"                            \"type\": \"string\",",
+									"                            \"title\": \"The currency schema\",",
+									"                            \"description\": \"An explanation about the purpose of this instance.\",",
+									"                            \"default\": \"\"",
+									"                        }",
+									"                    },",
+									"                    \"additionalProperties\": true",
+									"                },",
+									"                \"payment_id\": {",
+									"                    \"$id\": \"#/properties/refund/properties/payment_id\",",
+									"                    \"type\": \"string\",",
+									"                    \"title\": \"The payment_id schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": \"\"",
+									"                },",
+									"                \"order_id\": {",
+									"                    \"$id\": \"#/properties/refund/properties/order_id\",",
+									"                    \"type\": \"string\",",
+									"                    \"title\": \"The order_id schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": \"\"",
+									"                },",
+									"                \"created_at\": {",
+									"                    \"$id\": \"#/properties/refund/properties/created_at\",",
+									"                    \"type\": \"string\",",
+									"                    \"title\": \"The created_at schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": \"\"",
+									"                },",
+									"                \"updated_at\": {",
+									"                    \"$id\": \"#/properties/refund/properties/updated_at\",",
+									"                    \"type\": \"string\",",
+									"                    \"title\": \"The updated_at schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": \"\"",
+									"                },",
+									"                \"location_id\": {",
+									"                    \"$id\": \"#/properties/refund/properties/location_id\",",
+									"                    \"type\": \"string\",",
+									"                    \"title\": \"The location_id schema\",",
+									"                    \"description\": \"An explanation about the purpose of this instance.\",",
+									"                    \"default\": \"\"",
+									"                }",
+									"            },",
+									"            \"additionalProperties\": true",
+									"        }",
+									"    },",
+									"    \"additionalProperties\": true",
+									"}",
+									"pm.environment.set(\"refundSchema\", schema)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Square-Version",
+								"value": "2021-05-13",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"idempotency_key\": \"{{ID_KEY}}\",\n    \"payment_id\": \"{{payment_id}}\",\n    \"amount_money\": {\n      \"amount\": 100,\n      \"currency\": \"USD\"\n    }\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{sandboxURL}}/v2/refunds",
+							"host": [
+								"{{sandboxURL}}"
+							],
+							"path": [
+								"v2",
+								"refunds"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Payment Refund",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// ****** Tests ******",
+									"",
+									"// Validate schema is correctly received",
+									"pm.test(\"Validate schema\", () => {",
+									"    if (responseCode.code === 200){",
+									"        pm.response.to.have.jsonSchema(pm.environment.get(\"refundSchema\"));",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Square-Version",
+								"value": "2021-05-13",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{sandboxURL}}/v2/refunds/{{refund_id}}",
+							"host": [
+								"{{sandboxURL}}"
+							],
+							"path": [
+								"v2",
+								"refunds",
+								"{{refund_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List of Payment Refunds",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// ****** Tests ******",
+									"",
+									"// Validate schema is correctly received",
+									"pm.test(\"Validate schema\", () => {",
+									"    if (responseCode.code === 200){",
+									"        pm.response.to.have.jsonSchema(pm.environment.get(\"refundSchema\"));",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Square-Version",
+								"value": "2021-05-13",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{sandboxURL}}/v2/refunds",
+							"host": [
+								"{{sandboxURL}}"
+							],
+							"path": [
+								"v2",
+								"refunds"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"pm.test(\"Status code is 2xx\", function () {",
+					"    pm.response.to.be.success;",
+					"});",
+					"",
+					"pm.test(\"Response time is less than 1s\", function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+					"});",
+					"",
+					"",
+					"pm.test(\"Content-Type is present\", function () {",
+					"    pm.response.to.have.header(\"Content-Type\")",
+					"    pm.expect(pm.response.headers.get(\"Content-Type\").match(\"application/json\"))",
+					"})"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "ACCESS_TOKEN",
+			"value": "EAAAEGYX8fRVhnqgkgYIy8Z92KRd_l5YoXp_e9RZLVx4nMhwAMRQoyFHmAfWMJna",
+			"disabled": true
+		},
+		{
+			"key": "client_id",
+			"value": "sq0idp--dnDF6_tobRMf0QyRadOhw",
+			"disabled": true
+		}
+	]
+}

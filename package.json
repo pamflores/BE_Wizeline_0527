@@ -1,0 +1,24 @@
+{
+  "name": "BE-workshop",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test:report": "npx newman run Square_Payments/collection/Square_Payments.postman_collection.json -e Square_Payments/variables/Square_Sandbox.postman_environment.json -r htmlextra --reporter-htmlextra-export Square_Payments/reports/report.html",
+    "test:newman": "npx newman run Square_Payments/collection/Square_Payments.postman_collection.json -e Square_Payments/variables/Square_Sandbox.postman_environment.json"
+
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pamflores/BE_Wizeline_0527.git"
+  },
+  "keywords": [],
+  "author": "Pamela Flores",
+  "license": "ISC",
+  "dependencies": {
+    "newman-reporter-htmlextra": "^1.21.0"
+  },
+  "devDependencies": {
+    "newman": "^5.2.3"
+  }
+}
